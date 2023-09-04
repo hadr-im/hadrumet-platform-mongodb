@@ -1,0 +1,10 @@
+body {
+    background-color: #f5f5f5;
+}
+
+@media screen and (max-width: 444px) {
+    .loginBtn {
+        width:100%;
+        text-wrap: nowrap;
+    }
+}

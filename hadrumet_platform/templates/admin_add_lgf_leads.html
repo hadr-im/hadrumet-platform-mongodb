@@ -1,0 +1,186 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="min-vh-100 d-flex justify-content-center align-items-center">
+    <div class="container">
+        <div class="m-5">
+            <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+              <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Admin</a></li>
+                <li class="breadcrumb-item"><a href="#">LGF</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Add LGF Leads</li>
+              </ol>
+            </nav>
+        </div>
+      <div class="bg-white rounded-3 p-5 m-5 shadow">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{category}}" role="alert">
+                        {{message}}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <div class="row">
+          <h2>Leads Generating Form - Add new leads</h2>
+          <hr>
+          <form action="{{url_for('admin.add_lgf_leads')}}" method="post" id="add_lgf_leads">
+              <div class="mb-3">
+                <label for="name" class="form-label">Name<span style="color:red">*</span></label>
+                    <select class="form-select" id="name" name="name" required>
+                        <option selected>Choose an LGF</option>
+                            {% if options %}
+                                {% for option in options %}
+                                    <option value="{{option}}">{{option}}</option>
+                                {% endfor %}
+                            {% endif %}
+                    </select>
+                  <div class="form-text">Name of the Leads Generating Form. Example: Physical Campaign S1 2023. It should be unique and representative.</div>
+              </div>
+              <div class="mb-3">
+                <label for="responses_url" class="form-label">Responses URL<span style="color:red">*</span></label>
+                <input type="url" class="form-control" id="responses_url" name="responses_url" required readonly>
+                <div class="form-text">Link to spreadsheet containing the form responses.</div>
+              </div>
+              <div class="mb-3">
+                <label for="range" class="form-label">Data Range<span style="color:red">*</span></label>
+                <input type="text" class="form-control" id="range" value="Form Responses 1!A1:S100" name="range" required readonly>
+                <div class="form-text">The range in which the data is located within the spreadsheet provided above. Example: "Form Responses 1!A1:S100"</div>
+              </div>
+              <div class="mb-3">
+                <label for="start_row" class="form-label">Starting Row<span style="color:red">*</span></label>
+                <input type="number" class="form-control" id="start_row" value="101" name="start_row" required>
+                <div class="form-text">If the range chosen is "Form Responses 1!A1:S200" and the starting row is 101 then you'll get all the leads in this range "Form Responses 1!A101:S200" </div>
+              </div>
+            <!-- Button trigger modal -->
+            <button type="button" onclick="preview_data()" class="btn btn-primary col-12 mt-4 p-2" data-bs-toggle="modal" data-bs-target="#previewModal">
+              Preview Data
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+</div>
+
+
+<script>
+    function buildTable(data, starting_row) {
+        if (data.length === 0) {
+            $('#response').html('No data available.');
+            return;
+        }
+        var fieldNames = data[0];
+
+        var tableHTML = '<table class="table" style="width: max-content" id="response_table"><thead><tr>';
+
+        for (var i = 0; i < fieldNames.length; i++) {
+            tableHTML += '<th scope="col">' + fieldNames[i] + '</th>';
+        }
+
+        tableHTML += '</tr></thead><tbody>';
+
+        console.log(data);
+        starting_row = parseInt(starting_row);
+        console.log(starting_row);
+
+        range = $("#range").val();
+        final_row = range.split(":")[1].match(/\d+/);
+        difference = final_row - starting_row;
+
+        console.log(final_row);
+
+        if (difference>10) difference = 10;
+
+        for (var j = starting_row; j < starting_row+difference; j++) {
+            tableHTML += '<tr>';
+            for (var k = 0; k < fieldNames.length; k++) {
+                tableHTML += '<td>' + data[j][k] + '</td>';
+            }
+            tableHTML += '</tr>';
+        }
+
+        tableHTML += '</tbody></table>';
+
+        $('#showing_preview').css('display', 'block');
+        $('#response').html(tableHTML);
+
+        //$('#response_table').DataTable();
+    }
+
+    function preview_data() {
+        $.ajax({
+            url: '/config/lgf_preview_data?responses_url='+encodeURIComponent(document.getElementById('responses_url').value)+'&range='+encodeURIComponent(document.getElementById('range').value),
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                console.log($("#start_row").val());
+                buildTable(response["result"], $("#start_row").val());
+                $("#form_name").text($("#name").val());
+                $("#modal_range").text($("#range").val());
+            },
+            error: function(error) {
+                console.log('Error:', error);
+            }
+        });
+    }
+
+    $(function() {
+        $('#submit-btn').on('click', function(e) {
+            $('#add_lgf_leads').submit();
+        });
+    });
+
+    $('select').on('change', function() {
+      console.log($(this).val());
+      get_lgf_details($(this).val());
+    });
+
+    function get_lgf_details(name) {
+        $.ajax({
+            url: '/config/get_lgf_details?name='+encodeURIComponent(name),
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                $("#responses_url").val(response["responses_url"]);
+                $("#range").val(response["last_range_inserted"]);
+                $("#responses_url").attr('readonly', false);
+                $("#range").attr('readonly', false);
+            },
+            error: function(error) {
+                console.log('Error:', error);
+            }
+        });
+    }
+
+</script>
+
+<!-- Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="previewModalLabel">Data Preview</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+        <div class="container">
+          <div class="modal-body" style="overflow-x:auto">
+                <h5>Leads Generating Form Name: </h5>
+              <h6 id="form_name"></h6>
+              <h5>Data Range: </h5>
+              <h6 id="modal_range"></h6>
+                <hr>
+              <h6 id="showing_preview" style="display:none">Previewing the first 10 rows.</h6>
+            <div id="response">
+                <center><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span>
+                </div></center>
+            </div>
+          </div>
+        </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" id="submit-btn" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

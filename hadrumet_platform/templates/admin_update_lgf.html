@@ -1,0 +1,125 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="min-vh-100 d-flex justify-content-center align-items-center">
+    <div class="container">
+        <div class="m-5">
+            <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+              <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Admin</a></li>
+                <li class="breadcrumb-item"><a href="#">LGF</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Update LGF</li>
+              </ol>
+            </nav>
+        </div>
+      <div class="bg-white rounded-3 p-5 m-5 shadow">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{category}}" role="alert">
+                        {{message}}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <div class="row">
+          <h2>Leads Generating Form Update</h2>
+          <hr>
+          <form action="{{url_for('admin.update_lgf')}}" method="post">
+              <div class="mb-3">
+                <label for="name" class="form-label">Name<span style="color:red">*</span></label>
+                <select class="form-select" id="name" name="name" required>
+                    <option selected>Choose an LGF</option>
+                        {% if options %}
+                            {% for option in options %}
+                                <option value="{{option}}">{{option}}</option>
+                            {% endfor %}
+                        {% endif %}
+                </select>
+                <div class="form-text">Name of the Leads Generating Form. Example: Physical Campaign S1 2023. It should be unique and representative.</div>
+              </div>
+              <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <input type="text" class="form-control" id="description" name="description" readonly>
+                <div class="form-text">Description of the Leads Generating Form. Example: Event about XYZ.</div>
+              </div>
+              <div class="mb-3">
+                <label for="google_form_url" class="form-label">Google Form URL</label>
+                <input type="url" class="form-control" id="google_form_url" name="google_form_url" readonly>
+              </div>
+              <div class="mb-3">
+                <label for="responses_url" class="form-label">Responses URL<span style="color:red">*</span></label>
+                <input type="url" class="form-control" id="responses_url" name="responses_url" required readonly>
+                <div class="form-text">Link to spreadsheet containing the form responses.</div>
+              </div>
+              <div class="mb-3">
+                <label for="start_date" class="form-label">Start Date</label>
+                <input type="date" class="form-control" id="start_date" name="start_date" readonly>
+                <div class="form-text">Starting date of launching the LGF.</div>
+              </div>
+              <div class="mb-3">
+                <label for="end_date" class="form-label">End Date</label>
+                <input type="date" class="form-control" id="end_date" name="end_date" readonly>
+              </div>
+              <div class="mb-3">
+                <label for="field_id" class="form-label">Lead Unique Identifier Field<span style="color:red">*</span></label>
+                <input type="text" class="form-control" id="field_id" name="field_id" required readonly>
+                <div class="form-text">The exact same name of the phone number field. Example: "Phone Number" or "Phone Number | رقم الهاتف"</div>
+              </div>
+              <div class="mb-3" style="display:none">
+                <label for="range" class="form-label">Data Range<span style="color:red">*</span></label>
+                <input type="text" class="form-control" id="range" name="range" required>
+                <div class="form-text">The range in which the data is located within the spreadsheet provided above. Example: "Form Responses 1!A1:S100"</div>
+              </div>
+              <div class="mb-3">
+                <label for="visible_questions" class="form-label">Visible Questions for Tracking in order<span style="color:red">*</span></label>
+                <input type="text" class="form-control" id="visible_questions" name="visible_questions" required readonly>
+                <div class="form-text">The LGF's fields that will be visible in the EPs Tracking window. They should be in order and seperated by commas and written correctly according to the responses sheet.</div>
+              </div>
+                    <button type="submit" class="btn btn-primary col-12 mt-4 p-2">Update</button>
+          </form>
+        </div>
+      </div>
+    </div>
+</div>
+
+<script>
+
+    $('select').on('change', function() {
+      console.log($(this).val());
+      get_lgf_details($(this).val());
+    });
+
+    function get_lgf_details(name) {
+        $.ajax({
+            url: '/config/get_lgf_details?name='+encodeURIComponent(name),
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                console.log(response);
+                $("#description").val(response["description"]);
+                $("#end_date").val(response["end_date"]);
+                $("#start_date").val(response["start_date"]);
+                $("#google_form_url").val(response["google_form_url"]);
+                $("#responses_url").val(response["responses_url"]);
+                $("#field_id").val(response["id_field"]);
+                $("#range").val(response["last_range_inserted"]);
+                $("#visible_questions").val(response["visible_questions"]);
+                $("#description").attr('readonly', false);
+                $("#end_date").attr('readonly', false);
+                $("#start_date").attr('readonly', false);
+                $("#google_form_url").attr('readonly', false);
+                $("#responses_url").attr('readonly', false);
+                $("#field_id").attr('readonly', false);
+                $("#visible_questions").attr('readonly', false);
+            },
+            error: function(error) {
+                console.log('Error:', error);
+            }
+        });
+    }
+
+</script>
+
+
+{% endblock %}
+

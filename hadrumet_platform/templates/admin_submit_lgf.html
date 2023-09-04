@@ -1,0 +1,174 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="min-vh-100 d-flex justify-content-center align-items-center">
+    <div class="container">
+        <div class="m-5">
+            <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+              <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Admin</a></li>
+                <li class="breadcrumb-item"><a href="#">LGF</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Submit LGF</li>
+              </ol>
+            </nav>
+        </div>
+      <div class="bg-white rounded-3 p-5 m-5 shadow">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{category}}" role="alert">
+                        {{message}}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <div class="row">
+          <h2>Leads Generating Form Submission</h2>
+            <p>Before submitting, make sure you've given this email <code>lc-hadrumet-sheets@lc-hadrumet.iam.gserviceaccount.com</code> viewer access to responses spreadsheet.</p>
+          <hr>
+          <form action="{{url_for('admin.submit_lgf')}}" method="post" id="submit-lgf">
+              <div class="mb-3">
+                <label for="name" class="form-label">Name<span style="color:red">*</span></label>
+                <input type="text" class="form-control" id="name" name="name" required>
+                <div class="form-text">Name of the Leads Generating Form. Example: Physical Campaign S1 2023. It should be unique and representative.</div>
+              </div>
+              <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <input type="text" class="form-control" id="description" name="description">
+                <div class="form-text">Description of the Leads Generating Form. Example: Event about XYZ.</div>
+              </div>
+              <div class="mb-3">
+                <label for="google_form_url" class="form-label">Google Form URL</label>
+                <input type="url" class="form-control" id="google_form_url" name="google_form_url">
+              </div>
+              <div class="mb-3">
+                <label for="responses_url" class="form-label">Responses URL<span style="color:red">*</span></label>
+                <input type="url" class="form-control" id="responses_url" name="responses_url" required>
+                <div class="form-text">Link to spreadsheet containing the form responses.</div>
+              </div>
+              <div class="mb-3">
+                <label for="start_date" class="form-label">Start Date</label>
+                <input type="date" class="form-control" id="start_date" name="start_date">
+                <div class="form-text">Starting date of launching the LGF.</div>
+              </div>
+              <div class="mb-3">
+                <label for="end_date" class="form-label">End Date</label>
+                <input type="date" class="form-control" id="end_date" name="end_date">
+              </div>
+              <div class="mb-3">
+                <label for="field_id" class="form-label">Lead Unique Identifier Field<span style="color:red">*</span></label>
+                <input type="text" class="form-control" value="Phone Number" id="field_id" name="field_id" required>
+                <div class="form-text">The exact same name of the phone number field. Example: "Phone Number" or "Phone Number | رقم الهاتف"</div>
+              </div>
+              <div class="mb-3">
+                <label for="range" class="form-label">Data Range<span style="color:red">*</span></label>
+                <input type="text" class="form-control" id="range" value="Form Responses 1!A1:S100" name="range" required>
+                <div class="form-text">The range in which the data is located within the spreadsheet provided above. Example: "Form Responses 1!A1:S100"</div>
+              </div>
+              <div class="mb-3">
+                <label for="visible_questions" class="form-label">Visible Questions for Tracking in order<span style="color:red">*</span></label>
+                <input type="text" class="form-control" id="visible_questions" value="Full Name,Email,Phone Number,University,Field of study,Year of study" name="visible_questions" required>
+                <div class="form-text">The LGF's fields that will be visible in the EPs Tracking window. They should be in order and seperated by commas and written correctly according to the responses sheet.</div>
+              </div>
+            <!-- Button trigger modal -->
+            <button type="button" onclick="preview_data()" class="btn btn-primary col-12 mt-4 p-2" data-bs-toggle="modal" data-bs-target="#previewModal">
+              Preview Data
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+</div>
+
+
+<script>
+    function buildTable(data) {
+        if (data.length === 0) {
+            $('#response').html('No data available.');
+            return;
+        }
+        var fieldNames = data[0];
+
+        var tableHTML = '<table class="table" style="width: max-content" id="response_table"><thead><tr>';
+
+        for (var i = 0; i < fieldNames.length; i++) {
+            tableHTML += '<th scope="col">' + fieldNames[i] + '</th>';
+        }
+
+        tableHTML += '</tr></thead><tbody>';
+
+        console.log(data);
+
+        range = $("#range").val();
+        final_row = range.split(":")[1].match(/\d+/);
+
+        if (final_row>=10) final_row = 11;
+
+        for (var j = 1; j < final_row; j++) {
+            tableHTML += '<tr>';
+            for (var k = 0; k < fieldNames.length; k++) {
+                tableHTML += '<td>' + data[j][k] + '</td>';
+            }
+            tableHTML += '</tr>';
+        }
+
+        tableHTML += '</tbody></table>';
+
+        $('#showing_preview').css('display', 'block');
+        $('#response').html(tableHTML);
+
+        //$('#response_table').DataTable();
+    }
+
+    function preview_data() {
+        $.ajax({
+            url: '/config/lgf_preview_data?responses_url='+encodeURIComponent(document.getElementById('responses_url').value)+'&range='+encodeURIComponent(document.getElementById('range').value),
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                buildTable(response["result"]);
+                $("#form_name").text($("#name").val());
+                $("#modal_range").text($("#range").val());
+            },
+            error: function(error) {
+                console.log('Error:', error);
+            }
+        });
+    }
+
+    $(function() {
+        $('#submit-btn').on('click', function(e) {
+            $('#submit-lgf').submit();
+        });
+    });
+</script>
+
+<!-- Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="previewModalLabel">Data Preview</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+        <div class="container">
+          <div class="modal-body" style="overflow-x:auto">
+                <h5>Leads Generating Form Name: </h5>
+              <h6 id="form_name"></h6>
+              <h5>Data Range: </h5>
+              <h6 id="modal_range"></h6>
+                <hr>
+              <h6 id="showing_preview" style="display:none">Previewing the first 10 rows.</h6>
+            <div id="response">
+                <center><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span>
+                </div></center>
+            </div>
+          </div>
+        </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" id="submit-btn" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

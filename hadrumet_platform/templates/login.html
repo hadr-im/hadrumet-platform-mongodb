@@ -1,0 +1,68 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="min-vh-100 d-flex justify-content-center align-items-center">
+  <section>
+    <div class="container">
+      <div class="bg-white rounded-3 p-5 shadow">
+        {% with messages = get_flashed_messages(with_categories=true) %} {%
+          if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div class="row">
+          <form method="POST" action="{{ url_for('users.login') }}">
+            <div class="mb-4">
+              <h3 class="text-center"><strong>Login</strong></h3>
+            </div>
+            <div class="mb-4">
+              <label for="email" class="form-label">Email address</label>
+              <input
+                type="email"
+                name="email"
+                class="form-control"
+                id="email"
+                aria-describedby="emailHelp"
+              />
+              <div id="emailHelp" class="form-text">
+                We'll never share your email with anyone else.
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input
+                type="password"
+                name="password"
+                class="form-control"
+                id="password"
+              />
+            </div>
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="save" />
+              <label class="form-check-label" for="save">Remember me</label>
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-primary border-3 border-primary mb-1 loginBtn">
+              Sign in
+            </button>
+            <a class="btn btn-outline-primary mb-1 loginBtn" href="{{url_for('users.google')}}">
+              <img
+                class="img-thumbnail"
+                src="https://img.icons8.com/color/16/000000/google-logo.png"
+              />
+              Sign in Using AIESEC Email
+            </a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+
+{% endblock %}
