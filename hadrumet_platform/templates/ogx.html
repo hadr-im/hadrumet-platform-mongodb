@@ -1,0 +1,64 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="container">
+    <h1 class="my-4 text-center">OGT IT LEADS</h1>
+    <form method="post">
+        <select class="form-select mb-4" name="members">
+            <option selected disabled>Choose a member</option>
+            {% for member in members %}
+                <option value="{{ member._id }}">{{ member.name }}</option>
+            {% endfor %}
+        </select>
+        <div class="table-responsive">
+            <table id="leads" class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th class="align-middle">
+                        <input class="form-check-input" type="checkbox" name="selected" id="selectall" onclick="selectAllCheckboxes(this); togglebutton('selectall','sendtodep')">
+                        Select All
+                    </th>
+                    <th class="bg-primary align-middle text-white">Source</th>
+                    {% if data and data[0].lgf_questions %}
+                        {% for key, value in data[0].lgf_questions.items() %}
+                            {% if key in ['Full Name','Email','Phone Number','University','Field of study','Year of study'] %}
+                                <th class="bg-primary align-middle text-white">{{ key }}</th>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </tr>
+                </thead>
+                <tbody>
+                {% if data %}
+                    {% for document in data %}
+                        <tr>
+                            <td class="align-middle">
+                                <div class="form-check d-inline">
+                                    <label class="form-check-label">&nbsp;
+                                        <input class="form-check-input" type="checkbox" name="selected"
+                                               id="{{ document._id }}" value="{{ document._id }}"
+                                               onchange="togglebutton('{{ document._id }}','sendtodep')">
+                                    </label>
+                                </div>
+                            </td>
+                            <td class="align-middle">{{ document.lgf_name }}</td>
+                            {% for key, value in document.lgf_questions.items() %}
+                                {% if key in ['Full Name','Email','Phone Number','University','Field of study','Year of study'] %}
+                                    <td class="align-middle">{{ value }}</td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center">No data available</td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+        <button type="submit" id="sendtodep" class="btn btn-primary position-fixed bottom-0 end-0 m-3"
+                style="display: none" onclick="confirmSelection()">Submit
+        </button>
+    </form>
+</div>
+{% endblock %}

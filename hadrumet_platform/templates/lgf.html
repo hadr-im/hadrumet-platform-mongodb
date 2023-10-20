@@ -1,0 +1,19 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="container">
+        <h1 class="text-center">LGFs</h1>
+        <div class="card-deck">
+            <div class="row">
+                {% for lgf in lgfs %}
+                    <div class="card col-6">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ lgf.name }}</h5>
+                            <p class="card-text">{{ lgf.description }}</p>
+                            <a href="{{ url_for('leads.all_leads', lgf_id=lgf._id) }}" class="btn btn-primary">Dispatch leads</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
