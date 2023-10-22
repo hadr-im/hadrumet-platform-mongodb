@@ -84,27 +84,64 @@ def specific_lead(id):
         return f"An error occurred: {str(e)}"
 
 
-@bp_leads.route("/leads/department/<string:id>", methods=['GET', 'POST'])
+@bp_leads.route("/<string:id>/leads", methods=['GET', 'POST'])
 def department_lead(id):
     departments = [
         'ogtit',
         'ogttmba',
         'ogv'
     ]
+    department_leads = db['lgf_lead']
     if request.method == 'GET':
-        department_leads = db['lgf_lead']
         members = list(db['member'].find({"department": id}))
-        data = list(department_leads.find({"dispatched_to": id}))  # Filter data by dispatched_to
+        data = list(department_leads.find({"dispatched_to": id, "current_manager": ""}))  # Filter data by dispatched_to
         if id not in departments:
             return "Department not found."
         elif not data:
             return "No data found."
         elif id == 'ogtit':
-            return render_template("ogx.html", title="OGT IT&ENG Leads", data=data, members=members)
+            return render_template("ogx.html", title="OGT IT&ENG Leads", data=data, members=members, id=id)
         elif id == 'ogttmba':
-            return render_template("ogx.html", title="OGT TMBA Leads", data=data, members=members)
+            return render_template("ogx.html", title="OGT TMBA Leads", data=data, members=members, id=id)
         elif id == 'ogv':
-            return render_template("ogx.html", title="OGV Leads", data=data, members=members)
+            return render_template("ogx.html", title="OGV Leads", data=data, members=members, id=id)
+    if request.method == 'POST':
+        selected_ids = request.form.getlist('selected')
+        manager_name = request.form.get('manager_name')
+        collection = db['lgf_lead']
+        try:
+            for document_id in selected_ids:
+                try:
+                    document_id = ObjectId(document_id)
+                    # Update fields in the document using the update_one method
+                    collection.update_one(
+                        {'_id': document_id},
+                        {
+                            "$set": {
+                                'dispatched_by': 'Logged-In Member Name',
+                                'current_manager': manager_name  # Update current_status field
+                            }
+                        }
+                    )
+                    members = list(db['member'].find({"department": id}))
+                    data = list(department_leads.find({"dispatched_to": id, "current_manager": ""}))  # Filter data by dispatched_to
+                    if not data:
+                        return "No data found."
+                    elif id == 'ogtit':
+                        return render_template("ogx.html", title="OGT IT&ENG Leads", data=data, members=members, id=id)
+                    elif id == 'ogttmba':
+                        return render_template("ogx.html", title="OGT TMBA Leads", data=data, members=members, id=id)
+                    elif id == 'ogv':
+                        return render_template("ogx.html", title="OGV Leads", data=data, members=members, id=id)
+                except Exception as e:
+                    print(f"Error updating document: {str(e)}")
+                    flash(f"Error updating document: {str(e)}", "danger")
+            else:
+                flash("Manager assigned successfully!", "success")
+        except Exception as e:
+            print(f"Error dispatching leads: {str(e)}")
+            flash(f"Error dispatching leads: {str(e)}", "danger")
 
+        return redirect(url_for('leads.department_lead', id=id))
 
-
+    

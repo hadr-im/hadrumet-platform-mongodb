@@ -101,15 +101,6 @@
             <!-- Content for Tab 2 -->
             <div class="container">
                 <h1 class="my-4 text-center">Unmanaged dispatched Leads</h1>
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category }}">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
                 <form method="post" action="{{ url_for('leads.all_leads',lgf_id=lgf_id) }}">
                     <select class="form-select mb-3" name="department" id="department-select" required>
                         <option value="" selected>Select department</option>
@@ -176,15 +167,6 @@
             <!-- Content for Tab 3 -->
             <div class="container">
                 <h1 class="my-4 text-center">Dispatched Leads</h1>
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category }}">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
                 <form method="post" action="{{ url_for('leads.all_leads',lgf_id=lgf_id) }}">
                     <div class="table-responsive">
                         <table id="dispatched" class="table table-bordered table-striped table-success">
