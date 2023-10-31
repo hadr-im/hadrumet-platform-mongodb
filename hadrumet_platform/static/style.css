@@ -8,6 +8,9 @@ td,th {
     text-overflow: ellipsis; /* Optional: Adds ellipsis (...) for text that overflows the cell */
 }
 
+leads_filter {
+    margin-bottom: 5px;
+}
 
 @media screen and (max-width: 444px) {
     .loginBtn {

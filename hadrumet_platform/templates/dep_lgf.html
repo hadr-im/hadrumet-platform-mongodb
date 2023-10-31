@@ -9,7 +9,7 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ lgf.name }}</h5>
                             <p class="card-text">{{ lgf.description }}</p>
-                            <a href="{{ url_for('leads.all_leads', lgf_id=lgf._id) }}" class="btn btn-primary">Dispatch leads</a>
+                            <a href="{{ url_for('leads.department_leads', dep_id=dep_id, lgf_id=lgf.id) }}" class="btn btn-primary">Assign managers</a>
                         </div>
                     </div>
                 {% endfor %}

@@ -11,10 +11,10 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
-    <form method="post" action="{{ url_for("leads.department_lead", id=id) }}">
+    <form method="post" action=" {{ url_for('leads.department_leads',dep_id=dep_id, lgf_id=lgf_id ) }} ">
         <select class="form-select mb-4" name="manager_name" required>
-            <option value="" selected disabled>Select a department</option>
-            {% for member in members %}
+            <option value="" selected disabled>Select a manager</option>
+            {% for member in manager_names %}
                 <option value="{{ member._id }}">{{ member.name }}</option>
             {% endfor %}
         </select>
@@ -23,13 +23,13 @@
                 <thead>
                 <tr>
                     <th class="align-middle">
-                        <input class="form-check-input" type="checkbox" name="selected" id="selectall" onclick="selectAllCheckboxes(this); togglebutton('selectall','sendtodep')">
+                        <input class="form-check-input" type="checkbox" name="eps" id="selectall" onclick="selectAllCheckboxes(this); togglebutton('selectall','sendtodep')">
                         Select All
                     </th>
                     <th class="bg-primary align-middle text-white">Source</th>
                     {% if data and data[0].lgf_questions %}
                         {% for key, value in data[0].lgf_questions.items() %}
-                            {% if key in ['Full Name','Email','Phone Number','University','Field of study','Year of study'] %}
+                            {% if key in visible_questions %}
                                 <th class="bg-primary align-middle text-white">{{ key }}</th>
                             {% endif %}
                         {% endfor %}
@@ -46,12 +46,13 @@
                                         <input class="form-check-input" type="checkbox" name="selected"
                                                id="{{ document._id }}" value="{{ document._id }}"
                                                onchange="togglebutton('{{ document._id }}','sendtodep')">
+                                        <input hidden name="lead_name" value="{{ visible_questions[0] }}">
                                     </label>
                                 </div>
                             </td>
                             <td class="align-middle">{{ document.lgf_name }}</td>
                             {% for key, value in document.lgf_questions.items() %}
-                                {% if key in ['Full Name','Email','Phone Number','University','Field of study','Year of study'] %}
+                                {% if key in visible_questions %}
                                     <td class="align-middle">{{ value }}</td>
                                 {% endif %}
                             {% endfor %}
@@ -87,5 +88,6 @@
                 </div>
             </div>
     </form>
+    {% include 'filterModal.html' %}
 </div>
 {% endblock %}
