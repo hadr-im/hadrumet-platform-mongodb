@@ -1,0 +1,135 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container mt-5">
+<select class="form-select mb-3" name="lgf" id="lgf">
+    {% set unique_departments = [] %}
+    {% for lgf in undispatched_leads %}
+        {% if lgf.lgf_name not in unique_departments %}
+            <option class="bg-primary align-middle text-white">{{ lgf.lgf_name }}</option>
+            {% set _ = unique_departments.append(lgf.lgf_name) %}
+        {% endif %}
+    {% endfor %}
+</select>
+    <ul class="nav nav-tabs" id="myTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link active" id="tab1-tab" data-bs-toggle="tab" href="#tab1" role="tab" aria-controls="tab1" aria-selected="true">Undispatched Leads</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="tab2-tab" data-bs-toggle="tab" href="#tab2" role="tab" aria-controls="tab2" aria-selected="false">Dispatched not managed leads</a>
+        </li>
+    </ul>
+    <div class="tab-content mt-3" id="myTabsContent">
+        <div class="tab-pane fade show active" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
+            <!-- Content for Tab 1 -->
+            <div class="container">
+                <h1 class="my-4 text-center">Leads</h1>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <form method="post" action="{{ url_for('leads.all_leads',lgf_id=lgf_id, dep_id=dep_id) }}">
+                    <select class="form-select mb-3" name="department" id="department-select" required>
+                        <option value="" selected>Select department</option>
+                        <option value="ogtit">OGT IT&ENG</option>
+                        <option value="ogttmba">OGT TMBA</option>
+                        <option value="ogv">OGV</option>
+                    </select>
+                    <div class="table-responsive">
+                        <table id="leads" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th class="align-middle text-center">
+                                        <input class="form-check-input" type="checkbox" name="selected" id="selectall" onclick="selectAllCheckboxes(this); togglebutton('selectall','sendtodep')">
+                                        Select All
+                                    </th>
+                                    <th class="bg-primary align-middle text-white">Source</th>
+                                    {% for key, value in undispatched_leads[0].lgf_questions.items() %}
+                                        <th class="bg-primary align-middle text-white">{{ key }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for document in undispatched_leads %}
+                                    <tr>
+                                        <td class="align-middle">
+                                            <div class="form-check d-inline">
+                                                <label class="form-check-label">&nbsp;
+                                                    <input class="form-check-input" type="checkbox" name="selected" id="{{ document._id }}" value="{{ document._id }}" onchange="togglebutton('{{ document._id }}','sendtodep')">
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td class="align-middle">{{ document.lgf_name }}</td>
+                                        {% for key, value in document.lgf_questions.items() %}
+                                            <td class="align-middle">{{ value }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <button type="button" id="sendtodep" class="btn btn-primary position-fixed bottom-0 end-0 m-3" style="display: none" data-bs-toggle="modal" data-bs-target="#exampleModal">Submit</button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Confirmation</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to send the selected leads to the selected department?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Send leads</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
+            <!-- Content for Tab 2 -->
+            <div class="container">
+                <h1 class="my-4 text-center">Dispatched Leads</h1>
+                <form method="post" action="{{ url_for('leads.all_leads', dep_id=dep_id, lgf_id=lgf_id) }}">
+                    <div class="table-responsive">
+                        <table id="dispatched" class="table table-bordered table-striped table-success">
+                            <thead>
+                                <tr>
+                                    <th class="bg-primary align-middle text-white">Source</th>
+                                    {% for key, value in dispatched_leads[0].lgf_questions.items() %}
+                                        <th class="bg-primary align-middle text-white">{{ key }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for document in dispatched_leads %}
+                                    <tr>
+                                        <td class="align-middle">{{ document.lgf_name }}</td>
+                                        {% for key, value in document.lgf_questions.items() %}
+                                            <td class="align-middle">{{ value }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Initialize Bootstrap tabs
+    var myTabs = new bootstrap.Tab(document.getElementById('tab1-tab'));
+    myTabs.show();
+</script>
+{% endblock %}
