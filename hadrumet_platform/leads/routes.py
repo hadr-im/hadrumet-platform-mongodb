@@ -26,10 +26,22 @@ def all_leads(lgf_id):
                                                 "lgf_name": lgf_name}))  # Filter data by dispatched_to field not being empty
             unmanaged_leads = list(leads.find({"current_manager": "", "lgf_name": lgf_name, "dispatched_to": {
                 "$ne": ""}}))  # Filter data by current_manager field being empty
+            distinct_answers = {}
+            for document in undispatched_leads:
+                lgf_questions = document.get("lgf_questions", {})
+                # Iterate through the questions and their answers
+                for question, answer in lgf_questions.items():
+                    if question in distinct_answers:
+                        distinct_answers[question].add(answer)
+                    else:
+                        distinct_answers[question] = {answer}
+            # Convert sets to lists
+            for question, answers in distinct_answers.items():
+                distinct_answers[question] = list(answers)
 
             print(len(dispatched_leads))
             return render_template("leads.html", title="All Leads", undispatched_leads=undispatched_leads,
-                                   unmanaged_leads=unmanaged_leads, dispatched_leads=dispatched_leads, lgf_id=lgf_id)
+                                   unmanaged_leads=unmanaged_leads, dispatched_leads=dispatched_leads, lgf_id=lgf_id, distinct_answers=distinct_answers)
         except Exception as e:
             print(f"An error occurred: {str(e)}")
             flash(f"An error occurred: {str(e)}", "danger")
@@ -132,12 +144,12 @@ def department_leads(dep_id, lgf_id):
         distinct_answers = {}
         for document in lgf_leads:
             lgf_questions = document.get("lgf_questions", {})
-            # Iterate through the questions and their answers
             for question, answer in lgf_questions.items():
-                if question in distinct_answers:
-                    distinct_answers[question].add(answer)
-                else:
-                    distinct_answers[question] = {answer}
+                if question in visible_questions:
+                    if question in distinct_answers:
+                        distinct_answers[question].add(answer)
+                    else:
+                        distinct_answers[question] = {answer}
         # Convert sets to lists
         for question, answers in distinct_answers.items():
             distinct_answers[question] = list(answers)
