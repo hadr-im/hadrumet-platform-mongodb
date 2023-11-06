@@ -1,297 +1,76 @@
 <!-- Modal -->
-    <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="filterModalLabel">{{ title }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="container">
-                        <div class="row">
-                            <!-- Left Section: Tile List -->
-                            <div class="col-md-5">
-                                <div class="list-group" id="sections">
-                                    <a href="#" class="list-group-item list-group-item-action" data-section="section1">Section 1</a>
-                                    <a href="#" class="list-group-item list-group-item-action" data-section="section2">Section 2</a>
-                                    <!-- Add more sections here as needed -->
-                                </div>
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filterModalLabel">{{ title }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row">
+                        <!-- Left Section: Tile List -->
+                        <div class="col-md-5">
+                            <div class="list-group" id="sections">
+                                {% for question, answers in distinct_answers.items() %}
+                                    <button type="button" class="list-group-item list-group-item-action" data-section="{{ question }}">{{ question }}</button>
+                                {% endfor %}
                             </div>
-                            <!-- Right Section: Checkboxes -->
-                            <div class="col-md-5">
-                                <div class="form-check" id="checkboxes">
-                                    <!-- Checkboxes will be dynamically added here -->
+                        </div>
+                        <!-- Right Section: Checkboxes -->
+                        <div class="col-md-7"> <!-- Increased the width of the column -->
+                            {% for question, answers in distinct_answers.items() %}
+                                <div class="form-check" id="checkboxes_{{ question }}" style="display: none;">
                                 </div>
-                            </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Apply Filters</button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
             </div>
         </div>
     </div>
+</div>
+<script>
+    const distinctAnswers = {{ distinct_answers | tojson | safe | replace("null", "[]") }};
 
-    <script>
-        // JavaScript code to handle dynamic checkboxes
-        document.addEventListener('DOMContentLoaded', function () {
-            const sections = document.querySelectorAll('.list-group-item');
-            const checkboxesContainer = document.getElementById('checkboxes');
+    document.addEventListener('DOMContentLoaded', function () {
+        const sections = document.querySelectorAll('.list-group-item');
 
-            sections.forEach(section => {
-                section.addEventListener('click', function () {
-                    // Get the data-section attribute to determine which checkboxes to display
-                    const sectionName = section.getAttribute('data-section');
+        sections.forEach(section => {
+            section.addEventListener('click', function () {
+                // Get the data-section attribute to determine which checkboxes to display
+                const sectionName = section.getAttribute('data-section');
+                const checkboxesContainer = document.getElementById(`checkboxes_${sectionName}`);
 
-                    // Clear the previous checkboxes
-                    checkboxesContainer.innerHTML = '';
+                // Hide all checkboxes containers
+                document.querySelectorAll('.form-check').forEach(container => {
+                    container.style.display = 'none';
+                });
 
-                    // Create and append checkboxes for the selected section
-                    if (sectionName === 'section1') {
-                        checkboxesContainer.innerHTML = `
-                            <div class="row">
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption1">
-                                        <label class="form-check-label" for="checkboxOption1">
-                                            Option 1 for Section 1
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption2">
-                                        <label class="form-check-label" for="checkboxOption2">
-                                            Option 2 for Section 1
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption3">
-                                        <label class="form-check-label" for="checkboxOption3">
-                                            Option 3 for Section 1
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption4">
-                                        <label class="form-check-label" for="checkboxOption4">
-                                            Option 4 for Section 1
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption3">
-                                        <label class="form-check-label" for="checkboxOption3">
-                                            Option 3 for Section 1
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption4">
-                                        <label class="form-check-label" for="checkboxOption4">
-                                            Option 4 for Section 1
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption3">
-                                        <label class="form-check-label" for="checkboxOption3">
-                                            Option 3 for Section 1
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption4">
-                                        <label class="form-check-label" for="checkboxOption4">
-                                            Option 4 for Section 1
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-<div class="row">
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption3">
-                                        <label class="form-check-label" for="checkboxOption3">
-                                            Option 3 for Section 1
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption4">
-                                        <label class="form-check-label" for="checkboxOption4">
-                                            Option 4 for Section 1
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-<div class="row">
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption3">
-                                        <label class="form-check-label" for="checkboxOption3">
-                                            Option 3 for Section 1
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption4">
-                                        <label class="form-check-label" for="checkboxOption4">
-                                            Option 4 for Section 1
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-<div class="row">
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption3">
-                                        <label class="form-check-label" for="checkboxOption3">
-                                            Option 3 for Section 1
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption4">
-                                        <label class="form-check-label" for="checkboxOption4">
-                                            Option 4 for Section 1
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-<div class="row">
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption3">
-                                        <label class="form-check-label" for="checkboxOption3">
-                                            Option 3 for Section 1
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption4">
-                                        <label class="form-check-label" for="checkboxOption4">
-                                            Option 4 for Section 1
-                                        </label>
-                                    </div>
-                                </div>
-                            </div><div class="row">
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption3">
-                                        <label class="form-check-label" for="checkboxOption3">
-                                            Option 3 for Section 1
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption4">
-                                        <label class="form-check-label" for="checkboxOption4">
-                                            Option 4 for Section 1
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-<div class="row">
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption3">
-                                        <label class="form-check-label" for="checkboxOption3">
-                                            Option 3 for Section 1
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption4">
-                                        <label class="form-check-label" for="checkboxOption4">
-                                            Option 4 for Section 1
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-<div class="row">
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption3">
-                                        <label class="form-check-label" for="checkboxOption3">
-                                            Option 3 for Section 1
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption4">
-                                        <label class="form-check-label" for="checkboxOption4">
-                                            Option 4 for Section 1
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
+                // Show the selected checkboxes container
+                checkboxesContainer.style.display = 'block';
 
-                        `;
-                    } else if (sectionName === 'section2') {
-                        checkboxesContainer.innerHTML = `
-                            <div class="row">
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption5">
-                                        <label class="form-check-label" for="checkboxOption5">
-                                            Option 1 for Section 2
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption6">
-                                        <label class="form-check-label" for="checkboxOption6">
-                                            Option 2 for Section 2
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption7">
-                                        <label class="form-check-label" for="checkboxOption7">
-                                            Option 3 for Section 2
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="checkboxOption8">
-                                        <label class="form-check-label" for="checkboxOption8">
-                                            Option 4 for Section 2
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    }
-                    // Add more sections and their respective checkboxes as needed
+                // Clear the previous checkboxes
+                checkboxesContainer.innerHTML = '';
+
+                // Create and append checkboxes for the selected section in two columns
+                const answers = distinctAnswers[sectionName] || [];
+                answers.forEach(answer => {
+                    const checkboxDiv = document.createElement('div');
+                    checkboxDiv.classList.add('form-check');
+                    checkboxDiv.style.width = '50%'; // Set the width for the two columns
+                    checkboxDiv.innerHTML = `
+                        <input class="form-check-input" type="checkbox" id="${answer}_${sectionName}">
+                        <label class="form-check-label" for="${answer}_${sectionName}">
+                            ${answer}
+                        </label><br>`;
+                    checkboxesContainer.appendChild(checkboxDiv);
                 });
             });
         });
-    </script>
+    });
+</script>

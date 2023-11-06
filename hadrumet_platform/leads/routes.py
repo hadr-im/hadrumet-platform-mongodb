@@ -90,8 +90,8 @@ def specific_lead(id):
 @bp_leads.route("/<string:id>/lgfs", methods=['GET', 'POST'])
 def department_lgf(id):
     departments = [
-        'ogtit',
-        'ogttmba',
+        'ogta',
+        'ogte',
         'ogv'
     ]
     lgfs = []  # Initialize the lgfs list
@@ -108,8 +108,8 @@ def department_lgf(id):
 @bp_leads.route("/<string:dep_id>/<string:lgf_id>/leads", methods=['GET', 'POST'])
 def department_leads(dep_id, lgf_id):
     departments = [
-        'ogtit',
-        'ogttmba',
+        'ogta',
+        'ogte',
         'ogv'
     ]
 
@@ -123,22 +123,33 @@ def department_leads(dep_id, lgf_id):
         lgf_data = db['lgf'].find_one({'_id': ObjectId(lgf_id)})
         if lgf_data is None:
             return "LGF not found."
-
         lgf_name = lgf_data['name']  # Get the name of the LGF
-        lgf_leads = list(db['lgf_lead'].find({"dispatched_to": dep_id, "lgf_name": lgf_name, "current_manager": ""}))  # Filter data by dispatched_to
+        lgf_leads = list(db['lgf_lead'].find({"dispatched_to": dep_id, "lgf_name": lgf_name, "current_manager": ""}))
+        assigned_leads = list(db['lgf_lead'].find({"dispatched_to": dep_id, "lgf_name": lgf_name, "current_manager": {"$ne": ""}}))
         manager_names = db['member'].find({"department": dep_id})
         visible_questions = db['lgf'].find_one({'_id': ObjectId(lgf_id)})
         visible_questions = visible_questions.get('visible_questions', '').split(',')
-
-        if dep_id == 'ogtit':
-            return render_template("ogx.html", title="OGT IT&ENG Leads", data=lgf_leads, dep_id=dep_id, lgf_name=lgf_name,
-                                   visible_questions=visible_questions, manager_names=manager_names, lgf_id=lgf_id)
-        elif dep_id == 'ogttmba':
-            return render_template("ogx.html", title="OGT TMBA Leads", data=lgf_leads, dep_id=dep_id, lgf_name=lgf_name,
-                                   visible_questions=visible_questions, manager_names=manager_names, lgf_id=lgf_id)
+        distinct_answers = {}
+        for document in lgf_leads:
+            lgf_questions = document.get("lgf_questions", {})
+            # Iterate through the questions and their answers
+            for question, answer in lgf_questions.items():
+                if question in distinct_answers:
+                    distinct_answers[question].add(answer)
+                else:
+                    distinct_answers[question] = {answer}
+        # Convert sets to lists
+        for question, answers in distinct_answers.items():
+            distinct_answers[question] = list(answers)
+        if dep_id == 'ogta':
+            return render_template("ogx.html", title="OGTa Leads", data=lgf_leads, dep_id=dep_id, lgf_name=lgf_name,
+                                   visible_questions=visible_questions, manager_names=manager_names, lgf_id=lgf_id, distinct_answers=distinct_answers, assigned_leads=assigned_leads)
+        elif dep_id == 'ogte':
+            return render_template("ogx.html", title="OGTe Leads", data=lgf_leads, dep_id=dep_id, lgf_name=lgf_name,
+                                   visible_questions=visible_questions, manager_names=manager_names, lgf_id=lgf_id, distinct_answers=distinct_answers, assigned_leads=assigned_leads)
         elif dep_id == 'ogv':
             return render_template("ogx.html", title="OGV Leads", data=lgf_leads, dep_id=dep_id, lgf_name=lgf_name,
-                                   visible_questions=visible_questions, manager_names=manager_names, lgf_id=lgf_id)
+                                   visible_questions=visible_questions, manager_names=manager_names, lgf_id=lgf_id, distinct_answers=distinct_answers, assigned_leads=assigned_leads)
     if request.method == 'POST':
         selected_eps = request.form.getlist('selected')
         manager_name = request.form.get('manager_name')
@@ -159,65 +170,4 @@ def department_leads(dep_id, lgf_id):
         else:
             flash("Some leads were not dispatched.", "danger")
         return redirect(url_for('leads.department_leads', dep_id=dep_id, lgf_id=lgf_id))
-
-
-
-
-
-
-
-
-
-
-
-
-
-# def department_lead(id,lgf_id):
-#     departments = [
-#         'ogtit',
-#         'ogttmba',
-#         'ogv'
-#     ]
-#     department_leads = db['lgf_lead']
-#     if request.method == 'GET':
-#         members = list(db['member'].find({"department": id}))
-#         data = list(department_leads.find({"dispatched_to": id, "current_manager": ""}))  # Filter data by dispatched_to
-#         visible_questions = db['lgf'].find_one({'_id': lgf_id})['lgf_questions']['Visible_question'].split(',')
-#         if id not in departments:
-#             return "Department not found."
-#         elif not data:
-#             return "No data found."
-#         elif id == 'ogtit':
-#             return render_template("ogx.html", title="OGT IT&ENG Leads", data=data, members=members, id=id, lgf_name=lgf_id, visible_questions=visible_questions)
-#         elif id == 'ogttmba':
-#             return render_template("ogx.html", title="OGT TMBA Leads", data=data, members=members, id=id, lgf_name=lgf_id, visible_questions=visible_questions)
-#         elif id == 'ogv':
-#             return render_template("ogx.html", title="OGV Leads", data=data, members=members, id=id, lgf_name=lgf_id, visible_questions=visible_questions)
-#     if request.method == 'POST':
-#         selected_ids = request.form.getlist('selected')
-#         manager_name = request.form.get('manager_name')
-#         lead_names = request.form.getlist('lead_name')
-#         print(lead_names)
-#         collection = db['lgf_lead']
-#         result = collection.update_many(
-#             {'_id': {'$in': [ObjectId(i) for i in selected_ids]}},
-#             {
-#                 "$set": {
-#                     'dispatched_by': 'Logged-In Member Name',
-#                     'current_manager': manager_name  # Update current_status field
-#                 }
-#             }
-#         )
-#         full_names = db['lgf'].find_one({'_id': lgf_id})['lgf_questions']['Visible_question'].split(',')[0]
-#         print(full_names)
-#         #     ep_name = collection.find_one({'_id': document_id})['lgf_questions']['Full Name']
-#         #     print(result.matched_count)
-#         # if result.matched_count == len(selected_ids):
-#         #     flash(ep_name+"Leads we're dispatched successfully!", "success")
-#         # else:
-#         #     flash(ep_name+" was not dispatched.", "danger")
-#
-#
-#         return redirect(url_for('leads.department_lead', id=id))
-
     
