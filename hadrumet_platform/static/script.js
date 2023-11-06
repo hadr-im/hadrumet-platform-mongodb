@@ -25,9 +25,17 @@ function selectAllCheckboxes(source) {
         });
 }
 
+function initializeDataTable(id) {
+    let datatable_head = document.getElementById(id);
+    if (datatable_head) {
+        datatable_head.innerHTML = '<div style="margin-bottom: 5px; display: inline-block"><label>Search:<input type="search" class="" placeholder="" aria-controls="leads"></label> <btn class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal">Filter</btn></div>';
+    }
+}
+
 window.onload =function() {
-    let datatable_head = document.getElementById("leads_filter");
-    datatable_head.innerHTML = '<div style="margin-bottom: 5px; display: inline-block"><label>Search:<input type="search" class="" placeholder="" aria-controls="leads"></label> <btn class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal" >Filter</btn></div>';
+    initializeDataTable("leads_filter");
+    initializeDataTable("dispatched_filter");
+    initializeDataTable("unmanaged_filter");
 }
 
 
