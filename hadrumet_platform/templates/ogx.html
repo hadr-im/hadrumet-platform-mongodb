@@ -69,9 +69,9 @@
                                 </tr>
                             {% endfor %}
                         {% else %}
-                            <tr>
-                                <td colspan="7" class="text-center">No data available</td>
-                            </tr>
+                            <div class="alert alert-info" role="alert">
+                                No leads have been dispatched to this department yet.
+                            </div>
                         {% endif %}
                         </tbody>
                     </table>
@@ -127,7 +127,7 @@
                             </table>
                         {% else %}
                             <div class="alert alert-info" role="alert">
-                                No leads have been dispatched to this department yet.
+                                No leads have been managed to this lgf yet.
                             </div>
                         {% endif %}
                     </div>

@@ -1,15 +1,6 @@
 {% extends 'layout.html' %}
 {% block content %}
 <div class="container mt-5">
-<select class="form-select mb-3" name="lgf" id="lgf">
-    {% set unique_departments = [] %}
-    {% for lgf in undispatched_leads %}
-        {% if lgf.lgf_name not in unique_departments %}
-            <option class="bg-primary align-middle text-white">{{ lgf.lgf_name }}</option>
-            {% set _ = unique_departments.append(lgf.lgf_name) %}
-        {% endif %}
-    {% endfor %}
-</select>
     <ul class="nav nav-tabs" id="myTabs" role="tablist">
         <li class="nav-item" role="presentation">
             <a class="nav-link active" id="tab1-tab" data-bs-toggle="tab" href="#tab1" role="tab" aria-controls="tab1" aria-selected="true">Undispatched Leads</a>
@@ -43,37 +34,43 @@
                         <option value="ogv">OGV</option>
                     </select>
                     <div class="table-responsive">
-                        <table id="leads" class="table table-bordered table-striped">
-                            <thead>
-                                <tr>
-                                    <th class="align-middle text-center">
-                                        <input class="form-check-input" type="checkbox" name="selected" id="selectall" onclick="selectAllCheckboxes(this); togglebutton('selectall','sendtodep')">
-                                        Select All
-                                    </th>
-                                    <th class="bg-primary align-middle text-white">Source</th>
-                                    {% for key, value in undispatched_leads[0].lgf_questions.items() %}
-                                        <th class="bg-primary align-middle text-white">{{ key }}</th>
-                                    {% endfor %}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for document in undispatched_leads %}
+                        {% if undispatched_leads %}
+                            <table id="leads" class="table table-bordered table-striped">
+                                <thead>
                                     <tr>
-                                        <td class="align-middle">
-                                            <div class="form-check d-inline">
-                                                <label class="form-check-label">&nbsp;
-                                                    <input class="form-check-input" type="checkbox" name="selected" id="{{ document._id }}" value="{{ document._id }}" onchange="togglebutton('{{ document._id }}','sendtodep')">
-                                                </label>
-                                            </div>
-                                        </td>
-                                        <td class="align-middle">{{ document.lgf_name }}</td>
-                                        {% for key, value in document.lgf_questions.items() %}
-                                            <td class="align-middle">{{ value }}</td>
+                                        <th class="align-middle text-center">
+                                            <input class="form-check-input" type="checkbox" name="selected" id="selectall" onclick="selectAllCheckboxes(this); togglebutton('selectall','sendtodep')">
+                                            Select All
+                                        </th>
+                                        <th class="bg-primary align-middle text-white">Source</th>
+                                        {% for key, value in undispatched_leads[0].lgf_questions.items() %}
+                                            <th class="bg-primary align-middle text-white">{{ key }}</th>
                                         {% endfor %}
                                     </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {% for document in undispatched_leads %}
+                                        <tr>
+                                            <td class="align-middle">
+                                                <div class="form-check d-inline">
+                                                    <label class="form-check-label">&nbsp;
+                                                        <input class="form-check-input" type="checkbox" name="selected" id="{{ document._id }}" value="{{ document._id }}" onchange="togglebutton('{{ document._id }}','sendtodep')">
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">{{ document.lgf_name }}</td>
+                                            {% for key, value in document.lgf_questions.items() %}
+                                                <td class="align-middle">{{ value }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <div class="alert alert-info" role="alert">
+                                No undispatched leads available.
+                            </div>
+                        {% endif %}
                     </div>
                     <button type="button" id="sendtodep" class="btn btn-primary position-fixed bottom-0 end-0 m-3" style="display: none" data-bs-toggle="modal" data-bs-target="#exampleModal">Submit</button>
                     <!-- Modal -->
@@ -109,37 +106,43 @@
                         <option value="ogv">OGV</option>
                     </select>
                     <div class="table-responsive">
-                        <table id="unmanaged" class="table table-bordered table-striped table-warning">
-                            <thead>
-                                <tr>
-                                    <th class="align-middle text-center">
-                                        <input class="form-check-input" type="checkbox" name="selected" id="selectall" onclick="selectAllCheckboxes(this); togglebutton('selectall','sendtodep')">
-                                        Select All
-                                    </th>
-                                    <th class="bg-primary align-middle text-white">Source</th>
-                                    {% for key, value in unmanaged_leads[0].lgf_questions.items() %}
-                                        <th class="bg-primary align-middle text-white">{{ key }}</th>
-                                    {% endfor %}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for document in unmanaged_leads %}
+                        {% if unmanaged_leads %}
+                            <table id="unmanaged" class="table table-bordered table-striped table-warning">
+                                <thead>
                                     <tr>
-                                        <td class="align-middle">
-                                            <div class="form-check d-inline">
-                                                <label class="form-check-label">&nbsp;
-                                                    <input class="form-check-input" type="checkbox" name="selected" id="{{ document._id }}" value="{{ document._id }}" onchange="togglebutton('{{ document._id }}','redispatch')">
-                                                </label>
-                                            </div>
-                                        </td>
-                                        <td class="align-middle">{{ document.lgf_name }}</td>
-                                        {% for key, value in document.lgf_questions.items() %}
-                                            <td class="align-middle">{{ value }}</td>
+                                        <th class="align-middle text-center">
+                                            <input class="form-check-input" type="checkbox" name="selected" id="selectall" onclick="selectAllCheckboxes(this); togglebutton('selectall','sendtodep')">
+                                            Select All
+                                        </th>
+                                        <th class="bg-primary align-middle text-white">Source</th>
+                                        {% for key, value in unmanaged_leads[0].lgf_questions.items() %}
+                                            <th class="bg-primary align-middle text-white">{{ key }}</th>
                                         {% endfor %}
                                     </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {% for document in unmanaged_leads %}
+                                        <tr>
+                                            <td class="align-middle">
+                                                <div class="form-check d-inline">
+                                                    <label class="form-check-label">&nbsp;
+                                                        <input class="form-check-input" type="checkbox" name="selected" id="{{ document._id }}" value="{{ document._id }}" onchange="togglebutton('{{ document._id }}','redispatch')">
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">{{ document.lgf_name }}</td>
+                                            {% for key, value in document.lgf_questions.items() %}
+                                                <td class="align-middle">{{ value }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <div class="alert alert-info" role="alert">
+                                No unmanaged leads available yet.
+                            </div>
+                        {% endif %}
                     </div>
                     <button type="button" id="redispatch" class="btn btn-primary position-fixed bottom-0 end-0 m-3" style="display: none" data-bs-toggle="modal" data-bs-target="#exampleModal">Submit</button>
                     <!-- Modal -->
@@ -169,26 +172,32 @@
                 <h1 class="my-4 text-center">Dispatched Leads</h1>
                 <form method="post" action="{{ url_for('leads.all_leads',lgf_id=lgf_id) }}">
                     <div class="table-responsive">
-                        <table id="dispatched" class="table table-bordered table-striped table-success">
-                            <thead>
-                                <tr>
-                                    <th class="bg-primary align-middle text-white">Source</th>
-                                    {% for key, value in dispatched_leads[0].lgf_questions.items() %}
-                                        <th class="bg-primary align-middle text-white">{{ key }}</th>
-                                    {% endfor %}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for document in dispatched_leads %}
+                        {% if dispatched_leads %}
+                            <table id="dispatched" class="table table-bordered table-striped table-success">
+                                <thead>
                                     <tr>
-                                        <td class="align-middle">{{ document.lgf_name }}</td>
-                                        {% for key, value in document.lgf_questions.items() %}
-                                            <td class="align-middle">{{ value }}</td>
+                                        <th class="bg-primary align-middle text-white">Source</th>
+                                        {% for key, value in dispatched_leads[0].lgf_questions.items() %}
+                                            <th class="bg-primary align-middle text-white">{{ key }}</th>
                                         {% endfor %}
                                     </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {% for document in dispatched_leads %}
+                                        <tr>
+                                            <td class="align-middle">{{ document.lgf_name }}</td>
+                                            {% for key, value in document.lgf_questions.items() %}
+                                                <td class="align-middle">{{ value }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <div class="alert alert-info" role="alert">
+                                No dispatched leads available yet.
+                            </div>
+                        {% endif %}
                     </div>
                 </form>
             </div>
