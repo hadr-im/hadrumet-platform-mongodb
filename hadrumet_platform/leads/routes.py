@@ -191,7 +191,7 @@ def department_leads_api(dep_id, lgf_id):
         'ogv'
     ]
 
-    if request.method =='POST':
-        filters = request.get_json()
-        print(filters)
-        return "Success"
+
+    result = request.get_json()
+    print(result)
+    return "Success"

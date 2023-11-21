@@ -98,6 +98,33 @@
                         </div>
                     </div>
             </form>
+            <script>
+                function sendRequest() {
+                    // Get selected checkboxes
+                    let selectedOptions = [];
+                    let checkboxes = document.getElementsByName('filter');
+                    for (let i = 0; i < checkboxes.length; i++) {
+                        if (checkboxes[i].checked) {
+                            selectedOptions.push(checkboxes[i].value);
+                        }
+                    }
+
+                    // Make AJAX request
+                    $.ajax({
+                        type: 'POST',
+                        contentType: 'application/json;charset=UTF-8',
+                        data: JSON.stringify(selectedOptions),
+                        url: '{{ url_for('leads.department_leads_api',dep_id=dep_id, lgf_id=lgf_id ) }}',
+                        success: function(data) {
+                            console.log('Success:', data);
+                        },
+                        error: function(error) {
+                            console.error('Error:', error);
+                        }
+                    });
+                }
+
+            </script>
             {% include 'filterModal.html' %}
         </div>
         <div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
@@ -136,22 +163,5 @@
     </div>
     </div>
     </div>
-    <script>
-        function updateDataTable() {
-            {#get all checked checkboxes#}
-            var checked = [];
 
-            {#get all unchecked checkboxes#}
-            alert(JSON.stringify(filters));
-            $.ajax({
-                url: "{{ url_for('leads.department_leads_api',dep_id=dep_id, lgf_id=lgf_id )}}",
-                type: "POST",
-                data: JSON.stringify(filters),
-                contentType: "application/json",
-                success: function (data) {
-                    alert("success");
-                }
-            });
-        };
-    </script>
 {% endblock %}
