@@ -136,4 +136,22 @@
     </div>
     </div>
     </div>
+    <script>
+        function updateDataTable() {
+            {#get all checked checkboxes#}
+            var checked = [];
+
+            {#get all unchecked checkboxes#}
+            alert(JSON.stringify(filters));
+            $.ajax({
+                url: "{{ url_for('leads.department_leads_api',dep_id=dep_id, lgf_id=lgf_id )}}",
+                type: "POST",
+                data: JSON.stringify(filters),
+                contentType: "application/json",
+                success: function (data) {
+                    alert("success");
+                }
+            });
+        };
+    </script>
 {% endblock %}

@@ -29,13 +29,13 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                <button type="submit" class="btn btn-primary" onclick="return updateDataTable()">Apply Filters</button>
             </div>
         </div>
     </div>
 </div>
 <script>
-    const distinctAnswers = {{ distinct_answers | tojson | safe | replace("null", "[]") }};
+    let distinctAnswers = {{ distinct_answers | tojson | safe | replace("null", "[]") }};
 
     document.addEventListener('DOMContentLoaded', function () {
         const sections = document.querySelectorAll('.list-group-item');
@@ -73,4 +73,6 @@
             });
         });
     });
+
+
 </script>

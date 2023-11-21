@@ -182,4 +182,16 @@ def department_leads(dep_id, lgf_id):
         else:
             flash("Some leads were not dispatched.", "danger")
         return redirect(url_for('leads.department_leads', dep_id=dep_id, lgf_id=lgf_id))
-    
+
+@bp_leads.route("/<string:dep_id>/<string:lgf_id>/leads/api", methods=['GET', 'POST'])
+def department_leads_api(dep_id, lgf_id):
+    departments = [
+        'ogta',
+        'ogte',
+        'ogv'
+    ]
+
+    if request.method =='POST':
+        filters = request.get_json()
+        print(filters)
+        return "Success"
