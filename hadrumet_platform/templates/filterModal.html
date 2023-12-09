@@ -18,12 +18,18 @@
                             </div>
                         </div>
                         <!-- Right Section: Checkboxes -->
-                        <div class="col-md-7"> <!-- Increased the width of the column -->
+                        <div class="col-md-7">
                             {% for question, answers in distinct_answers.items() %}
-                                <div class="form-check" name="filter" id="checkboxes_{{ question }}" style="display: none;">
+                                <div id="checkboxes_{{ question }}" class="section" style="display: none">
+                                    {% for answer in answers %}
+                                        <input class="form-check-input" type="checkbox" name="{{ question }}" id="{{ answer }}_{{ question }}" value="{{ answer }}">
+                                        <label for="{{ answer }}_{{ question }}">{{ answer }}</label>
+                                        <br>
+                                    {% endfor %}
                                 </div>
                             {% endfor %}
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -35,8 +41,6 @@
     </div>
 </div>
 <script>
-    let distinctAnswers = {{ distinct_answers | tojson | safe | replace("null", "[]") }};
-
     document.addEventListener('DOMContentLoaded', function () {
         const sections = document.querySelectorAll('.list-group-item');
 
@@ -47,32 +51,32 @@
                 const checkboxesContainer = document.getElementById(`checkboxes_${sectionName}`);
 
                 // Hide all checkboxes containers
-                document.querySelectorAll('.form-check').forEach(container => {
+                document.querySelectorAll('.section').forEach(container => {
                     container.style.display = 'none';
                 });
 
                 // Show the selected checkboxes container
                 checkboxesContainer.style.display = 'block';
-
-                // Clear the previous checkboxes
-                checkboxesContainer.innerHTML = '';
-
-                // Create and append checkboxes for the selected section in two columns
-                const answers = distinctAnswers[sectionName] || [];
-                answers.forEach(answer => {
-                    const checkboxDiv = document.createElement('div');
-                    checkboxDiv.classList.add('form-check');
-                    checkboxDiv.style.width = '50%'; // Set the width for the two columns
-                    checkboxDiv.innerHTML = `
-                        <input class="form-check-input" type="checkbox" id="${answer}_${sectionName}">
-                        <label class="form-check-label" for="${answer}_${sectionName}">
-                            ${answer}
-                        </label><br>`;
-                    checkboxesContainer.appendChild(checkboxDiv);
-                });
             });
         });
     });
 
-
+    function getCheckedCheckboxes() {
+    const sections = document.querySelectorAll('.list-group-item');
+    let result= {};
+    sections.forEach((section) => {
+        console.log(section.textContent);
+        const checkboxes = document.querySelectorAll(`input[type="checkbox"][name="${section.textContent}"]`);
+        let sectionCheckboxes = [];
+        console.log(checkboxes);
+        checkboxes.forEach((checkbox) => {
+            if (checkbox.checked) {
+                sectionCheckboxes.push(checkbox.value);
+            }
+        });
+        result[section.textContent] = sectionCheckboxes;
+    });
+    return result;
+}
 </script>
+

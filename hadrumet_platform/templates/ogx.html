@@ -98,34 +98,27 @@
                         </div>
                     </div>
             </form>
+
+            {% include 'filterModal.html' %}
             <script>
                 function sendRequest() {
-                    // Get selected checkboxes
-                    let selectedOptions = [];
-                    let checkboxes = document.getElementsByName('filter');
-                    for (let i = 0; i < checkboxes.length; i++) {
-                        if (checkboxes[i].checked) {
-                            selectedOptions.push(checkboxes[i].value);
-                        }
-                    }
-
+                    const checkboxes = getCheckedCheckboxes();
+                    console.log(checkboxes);
                     // Make AJAX request
                     $.ajax({
                         type: 'POST',
                         contentType: 'application/json;charset=UTF-8',
-                        data: JSON.stringify(selectedOptions),
-                        url: '{{ url_for('leads.department_leads_api',dep_id=dep_id, lgf_id=lgf_id ) }}',
-                        success: function(data) {
+                        data: JSON.stringify({ checkboxes }),
+                        url: '{{ url_for('leads.department_leads_api', dep_id=dep_id, lgf_id=lgf_id ) }}',
+                        success: function (data) {
                             console.log('Success:', data);
                         },
-                        error: function(error) {
+                        error: function (error) {
                             console.error('Error:', error);
                         }
                     });
                 }
-
             </script>
-            {% include 'filterModal.html' %}
         </div>
         <div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
             <div class="container">

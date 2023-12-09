@@ -18,8 +18,10 @@ function togglebutton(checkbox , btnid){
     }
 }
 
+
+
 function selectAllCheckboxes(source) {
-        const checkboxes = document.querySelectorAll('input[type="checkbox"][name="selected"]');
+        const checkboxes = document.querySelectorAll('input[type="checkbox"][name="filter"]');
         checkboxes.forEach((checkbox) => {
             checkbox.checked = source.checked;
         });

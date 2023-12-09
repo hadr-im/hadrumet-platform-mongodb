@@ -90,7 +90,6 @@ def specific_lead(id):
         specific_lead = db['lgf_lead']
         # Assuming each document has a unique user ID field
         document = specific_lead.find_one({'_id': ObjectId(id)})
-        print(document)
         if document:
             return render_template('leads.html', title="Specific Lead", data=[document])  # Wrap the document in a list
         else:
@@ -166,7 +165,6 @@ def department_leads(dep_id, lgf_id):
         selected_eps = request.form.getlist('selected')
         manager_name = request.form.get('manager_name')
         lead_names = request.form.getlist('lead_name')
-        print(lead_names)
         collection = db['lgf_lead']
         result = collection.update_many(
             {'_id': {'$in': [ObjectId(i) for i in selected_eps]}},
@@ -185,13 +183,7 @@ def department_leads(dep_id, lgf_id):
 
 @bp_leads.route("/<string:dep_id>/<string:lgf_id>/leads/api", methods=['GET', 'POST'])
 def department_leads_api(dep_id, lgf_id):
-    departments = [
-        'ogta',
-        'ogte',
-        'ogv'
-    ]
-
-
-    result = request.get_json()
-    print(result)
+    data = request.get_json()
+    print(data)
+    'lg;sld;fshdfiuggg'
     return "Success"
